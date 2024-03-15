@@ -1,7 +1,7 @@
 # Import necessary modules and libraries
 from read_files import read_coordinates, read_data
 from Local_energy import psi, e_loc
-from MC import * 
+from method import * 
 
 # Read coordinates from external file
 filename_xyz = "H3+.xyz"
