@@ -1,0 +1,7 @@
+VMC        # Type of calculation: VMC or PDMC
+1.2        # Value of the amplitude of the wave function ->  a
+10000      # Number of steps for the MC calculation -> N_MC
+1.0        # Value of dt, recommended: 1.0 (VMC) or 0.05 (PDMC)
+100.0      # Value of tau for PDMC
+-0.5       # Value of reference energy, eref, for PDMC
+
