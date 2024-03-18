@@ -8,6 +8,7 @@
 
 # Import neccesary modules and libraries
 import numpy as np 
+import pandas as pd
 
 def read_coordinates(filename):
     with open(filename, 'r') as file:
@@ -15,9 +16,16 @@ def read_coordinates(filename):
 
         Z = int(lines[1].strip())
         ne = int(lines[2].strip())
-        R_angs = lines[3].strip().split()
-        R = [1.8897259886 * float(coor) for coor in R_angs]
+#        R_angs = lines[3].strip().split()
+ #       R = [1.8897259886 * float(coor) for coor in R_angs]
+        
+        R = pd.read_csv(filename, skiprows=3, index_col=False, 
+                       delimiter=r"\s+", names=['x', 'y', 'z'])
 
+        # Change coordinates from angstrom to atomic units
+        conversion = 1.8897259886
+        R[['x','y','z']] *= conversion
+        
         # Print parameters for verification
         print("="*50)
         print(" Data of xyz file:")
