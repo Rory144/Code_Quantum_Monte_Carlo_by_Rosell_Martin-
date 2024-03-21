@@ -1,43 +1,6 @@
 # Importing necessary libraries and modules 
 import numpy as np
 
-
-# Calculation of atomic orbital (phi) function
-def phi(a, r, R):
-
-    phi = 0.
-    # Calculate the distance between electron and nucleus
-    r_iA2 = (r[0] - R[0])**2 + (r[1] - R[1])**2 + (r[2] - R[2])**2
-    if r_iA2 < 0:
-        return 0 
-    else: 
-        r_iA = np.sqrt(r_iA2) 
-    # Calculate phi 
-    phi += (a**3/np.pi)**0.5 * np.exp(-a * r_iA)
-
-    return phi 
-
-# Calculation of wavefunction (psi) function
-def psi(a, r, R):
-    
-    N = int(len(r)/3)  
-    M = int(len(R)/3)  
-
-    #Inizialize psi and the sum  
-    psi = 1. 
-    
-    # Loop over electron indices
-    for i in range(N):
-        r_i = r[3*i : 3*i + 3 ]
-        ii = 3 * i
-        sum = 0. 
-        # Loop over nuclei indices
-        for A in range(M):
-            R_A = R[3*A : 3*A + 3] 
-            sum += phi(a, r_i, R_A) 
-        psi *= sum
-    return psi
-
 # Calculation of the electron-electron potential (Vee). 
 def Vee(r):
 
@@ -63,7 +26,6 @@ def Vee(r):
                 return float("inf")
             else:
                 Vee += 1.0 / r_ij
-
     return Vee
     
 # Calculation of the nuclei_nuclei potential (Vnn)
@@ -84,14 +46,12 @@ def Vnn(Z, R):
         #Outer loop for nuclei indices (A)
         for A in range(M + 1):
             AA = 3 * A
-            R_A = R[AA:AA+3]
             # Inner loop for nuclei indices (B)
             for B in range(A + 1, M):
                 BB = 3 * B
-                R_B = R[BB:BB+3]
                 
                 # Calculate the distance between nuclei
-                R_AB = np.sqrt((R_A[0] - R_B[0])**2 + (R_A[1] - R_B[1])**2 + (R_A[2] - R_B[2])**2)       
+                R_AB = np.sqrt((R[AA] - R[BB])**2 + (R[AA+1] - R[BB+1])**2 + (R[AA+2] - R[BB+2])**2)       
          
                 # Avoid division by zero
                 if R_AB == 0:
@@ -102,14 +62,14 @@ def Vnn(Z, R):
         return Vnn
 
 # Calculation of the nucleus-electron potential (Ven)
-def Ven(Z, r, R): 
-   
+def Ven(r, R, Z): 
+    
     #Number of electrons and nucleus
     N =int(len(r)/3)
     M =int(len(R)/3)
     
-    if len(Z) != m:
-        raise ValueError('The number of Z values must be the same as the number of nucleus')
+    if len(Z) != M:
+        print("The number of Z values must be equal to the number of nucleus") 
 
     # Initialize the potential
     Ven = 0.0
@@ -117,15 +77,14 @@ def Ven(Z, r, R):
     #Outer loop for nuclei indices (A)
     for i in range(N):
         ii = 3 * i
-        r_i = r[ii:ii+3]
 
         #Inner loop for nuclei indices (B)
         for A in range(M):
             AA = 3 * A
-            R_A = R[AA:AA+3]
-                
+            
             # Calculate the distance between nuclei
-            r_iA = np.sqrt((r_i[1] - R_A[1])**2 + (r_i[2] - R_A[2])**2 + (r_i[3] - R_A[3])**2)               
+            r_iA = np.sqrt((r[ii] - R[AA])**2 + (r[ii+1] - R[AA+1])**2 + (r[ii+2] - R[AA+2])**2)               
+            
             # Avoid division by zero
             if r_iA == 0:
                print("potential at r=0 diverges")
@@ -133,7 +92,7 @@ def Ven(Z, r, R):
             else: 
                 Ven += float(Z[A])/r_iA
 
-        return -Ven
+    return -Ven
 
 # Calculation of the total potential, (V_total)
 def V_total(Z, r, R): 
@@ -143,12 +102,50 @@ def V_total(Z, r, R):
     M =int(len(R)/3)
     
     # Initialize the potential
-    V_total = 0.0
+    V_total = 0.
     
     # Sum up the contributions from electron-electron, nuclei-nuclei, and electron-nuclei potentials
-    V_total += Vee(r) + Vnn(Z, R) + Ven(Z, r, R)
+    V_total += Vee(r) + Vnn(Z, R) + Ven(r, R, Z)
 
     return V_total 
+
+# Calculation of atomic orbital (phi) function
+def phi(a, r, R):
+
+    phi = 1.
+
+    # Calculate the distance between electron and nucleus
+    r_iA2 = (r[0] - R[0])**2 + (r[1] - R[1])**2 + (r[2] - R[2])**2
+
+    if r_iA2 < 0:
+        return 0
+    else:
+        r_iA = np.sqrt(r_iA2)
+
+    # Calculate phi
+    phi *= (a**3/np.pi)**0.5 * np.exp(-a * r_iA)
+
+    return phi
+
+# Calculation of wavefunction (psi) function
+def psi(a, r, R):
+
+    N = int(len(r)/3)
+    M = int(len(R)/3)
+
+    #Inizialize psi and the sum
+    psi = 1.
+
+    # Loop over electron indices
+    for i in range(N):
+        r_i = r[3*i : 3*i + 3 ]
+        suma = 0.
+        # Loop over nuclei indices
+        for A in range(M):
+            R_A = R[3*A : 3*A + 3]
+            suma += phi(a, r_i, R_A)
+        psi *= suma
+    return psi
 
 # Calculation of kinetic energy function
 def kinetic(a, r, R):
@@ -157,7 +154,9 @@ def kinetic(a, r, R):
     N =int(len(r)/3)
     M =int(len(R)/3)
     
-    sum = 0. 
+    #Inizialize the sum and the kinetic     
+    suma = 0. 
+    kinetic = 1. 
 
     # Loop over electron indices
     for i in range (N):
@@ -173,17 +172,18 @@ def kinetic(a, r, R):
             R_A = R[AA:AA+3]
 
             # Calculate the distance between electron and nucleus
-            r_iA = np.sqrt((r[0] - R[0])**2 + (r[1] - R[1])**2 + (r[2] - R[2])**2)
+            r_iA = np.sqrt((r_i[0] - R_A[0])**2 + (r_i[1] - R_A[1])**2 + (r_i[2] - R_A[2])**2)
             
             if r_iA == 0.:
                 return float("inf")
             else:   
             
                 D_iA = (3. / np.abs(r_iA)) - (1. + a * np.abs(r_iA)) / np.abs(r_iA)
-                numerator *= - a * D_iA * phi(a, r_i, R_A)
+                numerator += - a * D_iA * phi(a, r_i, R_A)
+                denominator += phi(a, r_i, R_A) 
 
-        sum += (numerator / denominator) 
-    kinetic = -0.5 * sum 
+        suma += (numerator / denominator) 
+    kinetic *= -0.5 * suma 
 
     return kinetic 
 

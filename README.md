@@ -11,24 +11,23 @@ The objective of the project is to develop a Quantum Monte Carlo (QMC) code capa
 
 This project presents different codes: 
 
-1. data.txt ->  This file contains all the input parameters required to specify before executing the program, called by the main program.  
+1. data.txt ->  This file contains all the input parameters required to specify before executing the program, called by the main_program.  
 
-2. xyz_atomic.txt -> This file contains the nucleus coordinates and the atomic numbers required to specify that will be called by the main program. 
+2. Geomtry directory -> This directory contains the files showing the charge of each atom, the number of electrons and the geometry of each atom or molecule being analyzed. For execution the files must be in the folder where the main program and the read file are located. 
 
-3. xyz_angstroms.txt -> This file is the same file that the previous one but the coordinates are shown in angstroms. 
+3. read_files.py -> This program is in charge of reading the geometry files and the necessary parameters of the execution. It also converts the units of the xyz file that are in angstroms to atomic units. 
 
-4. conversion_units.py -> This program allows to convert angstroms coordinates to atomic unit, using as input file the xyz_angstroms and generating an output file named xyz_atomic.txt 
- 
-5. main_program.py -> The main program is in charge of reading the information in file.txt files (previous) and importing them to the other programs with the help of the coordinates.py and parameters.py modules. Also depending on the reading of the type of calculation, it executes the Variational or the Pure diffusion program of Monte Carlo. 
+4. Local_energy.py -> This program calculates the necessary functions to compute the local energy such as kinetic energy, potential, wave function and atomic orbitals. 
 
-6. Local_energy.py -> This program compute the values of the potential, atomic orbitals, wavefunction, kinetic energy and finally, the local energy that is neccessary to the following programs: 
+5. method.py -> This program is in charge of computing the Variational Monte Carlo(VMC) and Pure diffusion Monte Carlo(PDMC) methods.
 
-7. Variational_Monte_Carlo.py -> This program have all the calculations to compute the energy of the Variational Monte Carlo method.
-
-8. Pure_Difussion_Monte_Carlo.py -> This program have all the calculations to compute the energy of the Pure Diffussion Monte Carlo method. 
+6. main_program.py -> This program is in charge of importing the three programs mentioned above, importing from Local_energy.py the functions needed to compute the methods, and from read_file.py the functions needed to read the information. In addition, it distinguishes whether the calculation type is VMC or PDMC and executes one or the other. Finally, it writes the results to an external file.
 
 # Execution 
+To run this program you must execute the program main_program.py. To do so, type the following command: 
+python3 main_program.py 
 
+Note: Remember that both the data.txt file and the file.xyz files must be in the same directory as the programs required for execution. 
 # License
 This project is licensed under the MIT License - see the LICENSE.md file for details.
 
